@@ -40,7 +40,7 @@ serialize(elements:Event[]) {
 
 getData(request: ApiSearchRequest) {
       console.log('request',request)
-    return of(this.serialize(this.ELEMENT_DATA)).pipe();
+    return of(this.serialize(this.ELEMENT_DATA));
     // return this.http.post('http://event-social-stage.herokuapp.com/parse/classes/Event', request)
   }
 }
