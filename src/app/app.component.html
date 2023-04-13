@@ -1,0 +1,43 @@
+<div class="container mat-elevation-z8" [ngStyle]="{'max-width.%': tableWidth}">
+  <div class="header">
+    <mat-form-field>
+      <input matInput [formControl]="filterForm" placeholder="Filter">
+    </mat-form-field>
+  </div>
+  <mat-table #table [dataSource]="dataSource" matSort matSortActive="{{sortBy}}" >
+    <!-- Position Column -->
+    <ng-container matColumnDef="date">
+      <mat-header-cell *matHeaderCellDef mat-sort-header disableClear> Date. </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.date | date}} </mat-cell>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="createdAt">
+      <mat-header-cell *matHeaderCellDef mat-sort-header disableClear> CreatedAt </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.createdAt | date}} </mat-cell>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="eventType">
+      <mat-header-cell *matHeaderCellDef mat-sort-header disableClear> EventType </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{element.eventType === 0 ? 'Individual' : element.eventType == 1? 'Double': 'Group'}}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="owner">
+      <mat-header-cell *matHeaderCellDef mat-sort-header disableClear> Owner </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.owner}} </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+
+  <mat-paginator #paginator
+                 (page)="pageEvent($event)"
+                 [length]="20"
+                 [pageSize]="request.limit"
+                 [showFirstLastButtons]="false">
+  </mat-paginator>
+</div>

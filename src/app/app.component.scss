@@ -1,0 +1,26 @@
+.container {
+  padding-top: 40px;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  margin: auto;
+}
+
+.mat-table {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.mat-header-cell.mat-sort-header-sorted {
+  color: black;
+}
+::ng-deep {
+  .mat-mdc-paginator-range-label {
+    display: none;
+  }
+
+  .mat-mdc-paginator-range-actions .mat-mdc-paginator-navigation-last,
+  .mat-mdc-paginator-range-actions .mat-mdc-paginator-navigation-first {
+    display: none;
+  }
+}
