@@ -31,7 +31,7 @@ export interface ApiSearchRequest {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit, OnInit{
-  displayedColumns = ['date', 'createdAt', 'eventType', 'owner'];
+  displayedColumns = ['title','date', 'createdAt', 'eventType', 'owner'];
   dataSource!: MatTableDataSource<any>;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -41,7 +41,7 @@ export class AppComponent implements AfterViewInit, OnInit{
     "order": "-createdAt",
     "include" : ["owner.profilePictures", "links"],
     "keys": ["title", "owner.profileName", "date", "createdAt", "eventType"],
-    "limit" : 10,
+    "limit" : 50,
     "skip": 0,
     "where": {
       "eventType": {"$in": [0, 1, 2]},
@@ -73,7 +73,6 @@ export class AppComponent implements AfterViewInit, OnInit{
     const regExp = RegExp('(-)');
     const result = regExp.exec(this.request.order);
     this.direction = (result ? 'asc': 'desc');
-
     this.subscribeOnChanges();
   }
 
@@ -86,53 +85,48 @@ export class AppComponent implements AfterViewInit, OnInit{
           if (value && value !== '') {
             this.request.where = Object.assign({}, this.request.where, {searchWords: {"$text":{"$search": {"$term": value}}}});
             this.table.getData(this.request).subscribe((data: Event[]) => {
-              this.ELEMENT_DATA = data;
               this.dataSource = new MatTableDataSource(data);
             })
           } else { // if input empty delete from request
             delete this.request.where['searchWords'];
           }
         })
-
-    this.subscription = this.table.getData(this.request)
-        .pipe(untilDestroyed(this))
-        .subscribe((data: Event[]) => {
-          this.ELEMENT_DATA = data;
-          this.dataSource = new MatTableDataSource(data);
-        });
   }
 
   ngAfterViewInit() {
-    this.sort.start = this.direction;
-    this.dataSource.sort = this.sort;
-    setTimeout(() => {
-      this.sort.sort(<MatSortable>{id: this.sort.active, start: this.direction});
-      this.sort.sortChange
-          .pipe(
-              untilDestroyed(this),
-              startWith({}),
-              switchMap(() => {
-                this.isLoadingResults = true;
-                this.sortChanged(this.sort.direction ? this.sort.direction: this.direction, this.sort.active);
-                this.pageChanged(this.paginator.pageIndex);
-                if (!this.subscription) {
-                  return this.table!.getData(
-                      this.request
-                  ).pipe(catchError(() => observableOf(null)));
-                }
-                this.subscription.unsubscribe();
-                this.subscription = null;
-                return observableOf(null);
-              }),
-              map(data => {
-                if (data === null) {
-                  return [];
-                }
-                return data;
-              }),
-          )
-          .subscribe(data => (data && data.length ? this.dataSource = new MatTableDataSource(data): ''));
-    }, 100);
+    this.table.getData(this.request)
+        .pipe(untilDestroyed(this))
+        .subscribe((data: Event[]) => {
+          this.dataSource = new MatTableDataSource(data);
+          this.dataSource.sort = this.sort;
+          this.sort.start = this.direction;
+          this.sort.sort(<MatSortable>{id: this.sort.active, start: this.direction});
+          this.sort.sortChange
+              .pipe(
+                  untilDestroyed(this),
+                  startWith({}),
+                  switchMap(() => {
+                    this.isLoadingResults = true;
+                    this.sortChanged(this.sort.direction ? this.sort.direction: this.direction, this.sort.active);
+                    this.pageChanged(this.paginator.pageIndex);
+                    if (!this.subscription) {
+                      return this.table!.getData(
+                          this.request
+                      ).pipe(catchError(() => observableOf(null)));
+                    }
+                    this.subscription.unsubscribe();
+                    this.subscription = null;
+                    return observableOf(null);
+                  }),
+                  map(data => {
+                    if (data === null) {
+                      return [];
+                    }
+                    return data;
+                  }),
+              )
+              .subscribe(data => (data && data.length ? this.dataSource = new MatTableDataSource(data): ''));
+        });
   }
   sortChanged(dn: SortDirection, active:string ) {
     this.direction = dn;
